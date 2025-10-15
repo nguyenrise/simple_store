@@ -1,3 +1,5 @@
+require "csv"
+
 # This file should ensure the existence of records required to run the application in every environment (production,
 # development, test). The code here should be idempotent so that it can be executed at any point in every environment.
 # The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
@@ -8,10 +10,21 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 Product.destroy_all
-676.times do
+Category.destroy_all
+
+csv_file = Rails.root.join('db/products.csv')
+csv_data = File.read(csv_file)
+
+products = CSV.parse(csv_data, headers: true)
+
+products.each do |product|
+  category = Category.find_or_create_by(name: product["category"])
+
   Product.create(
-    title: Faker::Commerce.product_name,
-    price: Faker::Commerce.price,
-    stock_quantity: Faker::Number.number(digits: 2)
+    title: product["name"],
+    description: product["description"],
+    price: product["price"],
+    stock_quantity: product["stock quantity"],
+    category: category
   )
 end
